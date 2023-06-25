@@ -1,16 +1,18 @@
 import { fetchBreeds, fetchCatByBreed } from './cat-api.js';
-import Notiflix from 'notiflix';
 
 let select = document.getElementsByClassName('breed-select')[0]
 let loader = document.getElementsByClassName('loader')[0]
 let error = document.getElementsByClassName('error')[0]
+let catDiv = document.getElementsByClassName('cat-info')[0]
 
 window.onload = async () => {
     loader.style.display = 'block'
+    select.style.display = 'none'
     let breeds = await fetchBreeds()
     loader.style.display = 'none'
-
+    
     if(breeds.data == undefined) {
+       error.style.display = 'block'
        Notiflix.Notify.failure('Oops! Something went wrong! Try reloading the page!');
 
         select.style.display = 'none' 
@@ -21,24 +23,27 @@ window.onload = async () => {
         let element = document.createElement('option')
         element.innerHTML = cat.name
         element.setAttribute('value', cat.id)
-    
+
         select.appendChild(element)
     });
+
+    select.style.display = 'block'
 }
 
 
 select.onchange = async () => {
     loader.style.display = 'block'
+    catDiv.style.display = 'none'
     let cat = await fetchCatByBreed(select.value)
-    console.log(select.value)
-    console.log(cat)
     loader.style.display = 'none'
+    catDiv.style.display = 'block'
 
-    if (cat.data[0].breeds == undefined || cat.data[0].breeds.length == 0 || cat.data == undefined) {
+    if (cat.data == undefined || cat.data.length == 0 || cat.data[0].breeds == undefined || cat.data[0].breeds.length == 0) {
         Notiflix.Notify.failure('Oops! Something went wrong! Try reloading the page!');
-       
-        select.style.display = 'none' 
-        img.style.display = 'none'
+
+        error.style.display = 'block'
+        select.style.display = 'none'
+        catDiv.style.display = 'none'
         return
     }
 
